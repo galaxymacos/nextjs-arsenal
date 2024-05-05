@@ -5,22 +5,32 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card";
 import { Suspense } from "react";
+import { cache } from "@/lib/cache";
 
-async function getMostPopularProducts() {
-  return db.product.findMany({
-    where: { isAvailableForPurchase: true },
-    orderBy: { orders: { _count: "desc" } },
-    take: 6,
-  });
-}
+const getMostPopularProducts = cache(
+  async () => {
+    return db.product.findMany({
+      where: { isAvailableForPurchase: true },
+      orderBy: { orders: { _count: "desc" } },
+      take: 6,
+    });
+  },
+  ["/", "getMostPopularProducts"],
+  { revalidate: 3600 * 24 },
+);
 
-async function getNewestProducts() {
-  return db.product.findMany({
-    where: { isAvailableForPurchase: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-  });
-}
+const getNewestProducts = cache(
+  async () => {
+    return db.product.findMany({
+      where: { isAvailableForPurchase: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    });
+  },
+  ["/", "getNewestProducts"],
+  { revalidate: 3600 * 24 },
+);
+
 export default function HomePage() {
   return (
     <main className={"space-y-12"}>

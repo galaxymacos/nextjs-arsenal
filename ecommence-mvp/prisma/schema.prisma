@@ -11,17 +11,18 @@ datasource db {
 }
 
 model Product {
-  id                     String                 @id @default(uuid())
+  id                     String   @id @default(uuid())
   name                   String
   priceInCents           Int
   filePath               String
   imagePath              String
   description            String
-  isAvailableForPurchase Boolean                @default(true)
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  orders                 Order[]
-  downloadVerifications  DownloadVerification[]
+  isAvailableForPurchase Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  orders                Order[]
+  downloadVerifications DownloadVerification[]
 }
 
 model User {
@@ -29,7 +30,8 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  orders    Order[]
+
+  orders Order[]
 }
 
 model Order {
@@ -41,7 +43,7 @@ model Order {
   user   User   @relation(references: [id], onDelete: Cascade, fields: [userId])
   userId String
 
-  product   Product @relation(references: [id], onDelete: Restrict, fields: [productId]) // Can't delete a product if it's in an order
+  product   Product @relation(references: [id], onDelete: Restrict, fields: [productId]) // Can't delete a product if it's already been purchased before
   productId String
 }
 
@@ -49,6 +51,7 @@ model DownloadVerification {
   id        String   @id @default(uuid())
   expiresAt DateTime
   createdAt DateTime @default(now())
+
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
